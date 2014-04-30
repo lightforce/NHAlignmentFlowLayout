@@ -10,6 +10,15 @@
 
 @implementation NHAlignmentFlowLayout
 
+-(CGFloat)minimumInteritemSpacingForSectionAtIndex:(NSInteger)index
+{
+    if([self.collectionView.delegate respondsToSelector:@selector(collectionView:layout:minimumInteritemSpacingForSectionAtIndex:)]){
+        id<UICollectionViewDelegateFlowLayout> flowLayoutDelegate = (id<UICollectionViewDelegateFlowLayout>) self.collectionView.delegate;
+        return [flowLayoutDelegate collectionView:self.collectionView layout:self minimumInteritemSpacingForSectionAtIndex:index];
+    }
+    return self.minimumInteritemSpacing;
+}
+
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSArray* array = [super layoutAttributesForElementsInRect:rect];
     for (UICollectionViewLayoutAttributes* attributes in array) {
@@ -70,12 +79,12 @@
 		if (attributes.frame.origin.y > previousAttributes.frame.origin.y) {
 			frame.origin.x = self.sectionInset.left;
 		} else {
-			frame.origin.x = CGRectGetMaxX(previousAttributes.frame) + self.minimumInteritemSpacing;
+			frame.origin.x = CGRectGetMaxX(previousAttributes.frame) + [self minimumInteritemSpacingForSectionAtIndex:indexPath.section];
 		}
 	}
 	
 	attributes.frame = frame;
-
+    
 	return attributes;
 }
 
@@ -97,7 +106,7 @@
 		if (attributes.frame.origin.x > previousAttributes.frame.origin.x) {
 			frame.origin.y = self.sectionInset.top;
 		} else {
-			frame.origin.y = CGRectGetMaxY(previousAttributes.frame) + self.minimumInteritemSpacing;
+			frame.origin.y = CGRectGetMaxY(previousAttributes.frame) + [self minimumInteritemSpacingForSectionAtIndex:indexPath.section];
 		}
 	}
 	
@@ -126,12 +135,12 @@
 		if (attributes.frame.origin.y < nextAttributes.frame.origin.y) {
 			frame.origin.x = self.collectionViewContentSize.width - self.sectionInset.right - frame.size.width;
 		} else {
-			frame.origin.x = nextAttributes.frame.origin.x - self.minimumInteritemSpacing - attributes.frame.size.width;
+			frame.origin.x = nextAttributes.frame.origin.x - [self minimumInteritemSpacingForSectionAtIndex:indexPath.section] - attributes.frame.size.width;
 		}
 	}
-
+    
 	attributes.frame = frame;
-
+    
 	return attributes;
 }
 
@@ -144,7 +153,7 @@
 		return attributes;
 	}
 	
-	if (indexPath.item == [self.collectionView numberOfItemsInSection:indexPath.section]) {
+	if (indexPath.item == [self.collectionView numberOfItemsInSection:indexPath.section] - 1) {
 		frame.origin.y = self.collectionViewContentSize.height - self.sectionInset.bottom - frame.size.height;
 	} else {
 		NSIndexPath *nextIndexPath = [NSIndexPath indexPathForItem:indexPath.item + 1 inSection:indexPath.section];
@@ -154,12 +163,12 @@
 			frame.origin.y = self.collectionViewContentSize.height - self.sectionInset.bottom - frame.size.height;
 		} else {
 			
-			frame.origin.y = nextAttributes.frame.origin.y - self.minimumInteritemSpacing - attributes.frame.size.height;
+			frame.origin.y = nextAttributes.frame.origin.y - [self minimumInteritemSpacingForSectionAtIndex:indexPath.section] - attributes.frame.size.height;
 		}
 	}
 	
 	attributes.frame = frame;
-
+    
 	return attributes;
 }
 
